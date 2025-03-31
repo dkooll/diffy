@@ -31,12 +31,34 @@ func ValidateProject(terraformRoot string) ([]ValidationFinding, error) {
 	}
 
 	// Run validation
-	findings, err := ValidateTerraformProject(logger, absRoot)
+	rootFindings, err := ValidateTerraformSchemaInDirectory(logger, absRoot, "")
 	if err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
 
-	return findings, nil
+	var allFindings []ValidationFinding
+	allFindings = append(allFindings, rootFindings...)
+
+	// Validate submodules
+	modulesDir := filepath.Join(absRoot, "modules")
+	submodules, err := FindSubmodules(modulesDir)
+	if err != nil {
+		logger.Logf("Failed to find submodules in %s: %v", modulesDir, err)
+	} else {
+		for _, sm := range submodules {
+			findings, err := ValidateTerraformSchemaInDirectory(logger, sm.Path, sm.Name)
+			if err != nil {
+				logger.Logf("Failed to validate submodule %s: %v", sm.Name, err)
+				continue
+			}
+			allFindings = append(allFindings, findings...)
+		}
+	}
+
+	// Deduplicate findings
+	deduplicatedFindings := DeduplicateFindings(allFindings)
+
+	return deduplicatedFindings, nil
 }
 
 // CreateValidationIssue creates a GitHub issue with validation findings

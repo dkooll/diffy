@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	// "context"
 	"fmt"
 	"os"
 
@@ -9,8 +9,7 @@ import (
 )
 
 func main() {
-	// Validate a Terraform project
-	findings, err := diffy.ValidateProject("path/to/terraform")
+	findings, err := diffy.ValidateProject("../module/")
 	if err != nil {
 		fmt.Printf("Validation error: %v\n", err)
 		os.Exit(1)
