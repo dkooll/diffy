@@ -41,7 +41,7 @@ func (bd *BlockData) ParseBlocks(body *hclsyntax.Body) {
 				bd.parseDynamicBlock(block.Body, block.Labels[0])
 			}
 		default:
-			parsed := ParseSyntaxBody(block.Body)
+			parsed := ParseSyntaxBodyFromParser(block.Body)
 			bd.StaticBlocks[block.Type] = parsed
 		}
 	}
@@ -62,13 +62,23 @@ func (bd *BlockData) parseLifecycle(body *hclsyntax.Body) {
 
 // parseDynamicBlock processes a dynamic block
 func (bd *BlockData) parseDynamicBlock(body *hclsyntax.Body, name string) {
-	contentBlock := findContentBlock(body)
-	parsed := ParseSyntaxBody(contentBlock)
+	contentBlock := findContentBlockInBody(body)
+	parsed := ParseSyntaxBodyFromParser(contentBlock)
 	if existing := bd.DynamicBlocks[name]; existing != nil {
 		mergeBlocks(existing, parsed)
 	} else {
 		bd.DynamicBlocks[name] = parsed
 	}
+}
+
+// findContentBlockInBody finds the content block within a dynamic block
+func findContentBlockInBody(body *hclsyntax.Body) *hclsyntax.Body {
+	for _, b := range body.Blocks {
+		if b.Type == "content" {
+			return b.Body
+		}
+	}
+	return body
 }
 
 // Validate recursively validates a block against its schema
@@ -159,8 +169,8 @@ func (bd *BlockData) validateBlocks(
 	}
 }
 
-// ParseSyntaxBody parses a hclsyntax.Body into a ParsedBlock
-func ParseSyntaxBody(body *hclsyntax.Body) *ParsedBlock {
+// ParseSyntaxBodyFromParser is a wrapper that calls the parser's ParseSyntaxBody
+func ParseSyntaxBodyFromParser(body *hclsyntax.Body) *ParsedBlock {
 	bd := NewBlockData()
 	blk := &ParsedBlock{Data: bd}
 	bd.ParseAttributes(body)

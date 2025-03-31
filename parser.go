@@ -126,8 +126,8 @@ func (p *DefaultHCLParser) ParseMainFile(ctx context.Context, filename string) (
 func ParseSyntaxBody(body *hclsyntax.Body) *ParsedBlock {
 	bd := NewBlockData()
 	blk := &ParsedBlock{Data: bd}
-	bd.ParseSyntaxAttributes(body)
-	bd.ParseSyntaxBlocks(body)
+	bd.ParseAttributes(body)
+	bd.ParseBlocks(body)
 	return blk
 }
 

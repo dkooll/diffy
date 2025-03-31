@@ -186,9 +186,10 @@ func DeduplicateFindings(findings []ValidationFinding) []ValidationFinding {
 
 // FormatFinding formats a validation finding as a string
 func FormatFinding(f ValidationFinding) string {
-	place := "root"
-	if f.SubmoduleName != "" {
-		place = "root in submodule " + f.SubmoduleName
+	cleanPath := strings.ReplaceAll(f.Path, "root.", "")
+
+	if cleanPath == "root" {
+		cleanPath = "root"
 	}
 
 	requiredOptional := "optional"
@@ -206,6 +207,11 @@ func FormatFinding(f ValidationFinding) string {
 		entityType = "data source"
 	}
 
-	return fmt.Sprintf("%s missing %s %s %q in %s (%s)",
+	place := cleanPath
+	if f.SubmoduleName != "" {
+		place = place + " in submodule " + f.SubmoduleName
+	}
+
+	return fmt.Sprintf("`%s`: missing %s %s `%s` in `%s` (%s)",
 		f.ResourceType, requiredOptional, blockOrProp, f.Name, place, entityType)
 }

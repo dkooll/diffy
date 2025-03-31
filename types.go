@@ -2,7 +2,6 @@ package diffy
 
 import (
 	"context"
-	"github.com/hashicorp/hcl/v2/hclsyntax"
 )
 
 // BlockProcessor interface defines methods for processing HCL blocks
