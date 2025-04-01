@@ -98,10 +98,10 @@ We welcome contributions from the community! Whether it's reporting a bug, sugge
 
 ## Notes
 
-The TERRAFORM_ROOT environment variable takes highest priority if set.
+The `TERRAFORM_ROOT` environment variable takes highest priority if set.
 
-When no path is explicitly provided via options or environment variables, diffy will use a default relative path of "../../".
+When no path is explicitly provided via options or environment variables, diffy will use a default relative path of `"../../"`.
 
-GitHub issue creation requires a GITHUB_TOKEN environment variable.
+GitHub issue creation requires a `GITHUB_TOKEN` environment variable.
 
 This approach supports both local testing and CI/CD environments with the same code.
