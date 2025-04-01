@@ -1,4 +1,4 @@
-# diffy
+# diffy [![Go Reference](https://pkg.go.dev/badge/github.com/dkooll/diffy.svg)](https://pkg.go.dev/github.com/dkooll/diffy)
 
 Diffy is a terraform schema validation tool that identifies missing required and optional properties in your configurations.
 
