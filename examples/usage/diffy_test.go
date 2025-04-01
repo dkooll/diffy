@@ -9,7 +9,6 @@ import (
 func TestTerraformSchemaValidation(t *testing.T) {
 	findings, err := diffy.ValidateSchema(
 		diffy.WithTerraformRoot("../module"),
-		// diffy.WithGitHubIssueCreation(),
 		func(opts *diffy.SchemaValidatorOptions) {
 			opts.Silent = true
 		},
