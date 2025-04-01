@@ -18,7 +18,6 @@ func (l *SimpleLogger) Logf(format string, args ...any) {
 // SchemaValidatorOptions contains options for schema validation
 type SchemaValidatorOptions struct {
 	TerraformRoot     string
-	IncludeModules    bool
 	CreateGitHubIssue bool
 	Logger            Logger
 	GitHubToken       string
@@ -37,53 +36,22 @@ func WithTerraformRoot(path string) SchemaValidatorOption {
 	}
 }
 
-// // WithLogger sets a custom logger
-func WithLogger(logger Logger) SchemaValidatorOption {
-	return func(opts *SchemaValidatorOptions) {
-		opts.Logger = logger
-	}
-}
-
-// WithIncludeModules enables or disables validation of submodules
-func WithIncludeModules(include bool) SchemaValidatorOption {
-	return func(opts *SchemaValidatorOptions) {
-		opts.IncludeModules = include
-	}
-}
-
-// WithGitHubIssueCreation enables GitHub issue creation with the specified token and repository
-func WithGitHubIssueCreation(token, owner, repo string) SchemaValidatorOption {
-	return func(opts *SchemaValidatorOptions) {
-		opts.CreateGitHubIssue = true
-		opts.GitHubToken = token
-		opts.GitHubOwner = owner
-		opts.GitHubRepo = repo
-	}
-}
-
-// WithGitHubIssueCreationFromEnv enables GitHub issue creation using environment variables
-func WithGitHubIssueCreationFromEnv() SchemaValidatorOption {
+// WithGitHubIssueCreation enables GitHub issue creation with token
+func WithGitHubIssueCreation() SchemaValidatorOption {
 	return func(opts *SchemaValidatorOptions) {
 		opts.CreateGitHubIssue = true
 		opts.GitHubToken = os.Getenv("GITHUB_TOKEN")
-		// Let the GetRepoInfo method handle these later if not specified
+		// Let the GetRepoInfo method handle owner/repo if not specified
 	}
 }
 
-// WithSilent disables console output
-func WithSilent(silent bool) SchemaValidatorOption {
-	return func(opts *SchemaValidatorOptions) {
-		opts.Silent = silent
-	}
-}
 
 // ValidateSchema validates Terraform schema with the specified options
 func ValidateSchema(options ...SchemaValidatorOption) ([]ValidationFinding, error) {
 	// Default options
 	opts := &SchemaValidatorOptions{
-		TerraformRoot:  ".",
-		IncludeModules: true,
-		// Logger:          &SimpleLogger{},
+		TerraformRoot:     "../../",
+		Logger:            &SimpleLogger{},
 		CreateGitHubIssue: false,
 		Silent:            false,
 	}
@@ -132,24 +100,22 @@ func validateProject(opts *SchemaValidatorOptions) ([]ValidationFinding, error) 
 	var allFindings []ValidationFinding
 	allFindings = append(allFindings, rootFindings...)
 
-	// Validate submodules if enabled
-	if opts.IncludeModules {
-		modulesDir := filepath.Join(absRoot, "modules")
-		submodules, err := FindSubmodules(modulesDir)
-		// if err != nil {
-		// 	opts.Logger.Logf("Failed to find submodules in %s: %v", modulesDir, err)
+	// Always validate submodules - this is now the default behavior
+	modulesDir := filepath.Join(absRoot, "modules")
+	submodules, err := FindSubmodules(modulesDir)
+	if err != nil {
+		// Just log and continue if no submodules are found - no need to error out
 		if !opts.Silent {
-			fmt.Printf("Failed to find submodules in %s: %v\n", modulesDir, err)
-
-		} else {
-			for _, sm := range submodules {
-				findings, err := ValidateTerraformSchemaInDirectory(opts.Logger, sm.Path, sm.Name)
-				if err != nil {
-					opts.Logger.Logf("Failed to validate submodule %s: %v", sm.Name, err)
-					continue
-				}
-				allFindings = append(allFindings, findings...)
+			fmt.Printf("Note: No submodules found in %s\n", modulesDir)
+		}
+	} else {
+		for _, sm := range submodules {
+			findings, err := ValidateTerraformSchemaInDirectory(opts.Logger, sm.Path, sm.Name)
+			if err != nil {
+				opts.Logger.Logf("Failed to validate submodule %s: %v", sm.Name, err)
+				continue
 			}
+			allFindings = append(allFindings, findings...)
 		}
 	}
 

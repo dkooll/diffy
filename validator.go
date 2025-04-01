@@ -212,6 +212,6 @@ func FormatFinding(f ValidationFinding) string {
 		place = place + " in submodule " + f.SubmoduleName
 	}
 
-	return fmt.Sprintf("`%s`: missing %s %s `%s` in `%s` (%s)",
+	return fmt.Sprintf("%s: missing %s %s %s in %s (%s)",
 		f.ResourceType, requiredOptional, blockOrProp, f.Name, place, entityType)
 }
