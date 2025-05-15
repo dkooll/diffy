@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/dkooll/diffy/compare/v1.0.1...v1.1.0) (2025-05-15)
+
+
+### Features
+
+* ignore deprecated properties and blocks ([#9](https://github.com/dkooll/diffy/issues/9)) ([1f799ac](https://github.com/dkooll/diffy/commit/1f799ac57576a83fde1c6155b6ed9781765b6ca0))
+
 ## [1.0.1](https://github.com/dkooll/diffy/compare/v1.0.0...v1.0.1) (2025-04-02)
 
 
