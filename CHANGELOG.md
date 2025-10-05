@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/dkooll/diffy/compare/v1.1.0...v1.2.0) (2025-10-05)
+
+
+### Features
+
+* complete refactor ([135ed8d](https://github.com/dkooll/diffy/commit/135ed8d92bd0d51922a3b4bf1260e9847563d086))
+
 ## [1.1.0](https://github.com/dkooll/diffy/compare/v1.0.1...v1.1.0) (2025-05-15)
 
 
