@@ -1,92 +1,94 @@
 # diffy [![Go Reference](https://pkg.go.dev/badge/github.com/dkooll/diffy.svg)](https://pkg.go.dev/github.com/dkooll/diffy)
 
-Diffy is a terraform schema validation tool that identifies missing required and optional properties in your configurations.
+A terraform schema validation tool that ensures your infrastructure configurations are complete and compliant with provider specifications.
+
+Automatically detects missing required properties, validates optional attributes, and helps maintain configuration quality across teams and projects.
+
+## Why diffy?
+
+Terraform configurations can become complex and inconsistent over time. Missing required properties, outdated attribute names, and incomplete resource definitions can lead to deployment failures and configuration drift.
+
+Diffy helps you:
+
+Catch configuration errors before deployment
+
+Ensure compliance with provider schema requirements
+
+Maintain consistency across large infrastructure codebases
+
+Reduce debugging time during infrastructure changes
+
+Support automated validation in CI/CD pipelines
 
 ## Installation
 
-```zsh
-go get github.com/dkooll/diffy
-```
+`go get github.com/dkooll/diffy`
 
 ## Usage
 
-as a local test with a relative path:
-
-```go
-func TestTerraformSchemaValidation(t *testing.T) {
-	findings, err := diffy.ValidateSchema(
-		diffy.WithTerraformRoot("../module"),
-		func(opts *diffy.SchemaValidatorOptions) {
-			opts.Silent = true
-		},
-	)
-	if err != nil {
-		t.Fatalf("Validation failed: %v", err)
-	}
-	for _, finding := range findings {
-		t.Logf("%s", diffy.FormatFinding(finding))
-	}
-	if len(findings) > 0 {
-		t.Errorf("Found %d missing properties/blocks in root or submodules. See logs above.", len(findings))
-	}
-}
-```
-
-within github actions:
-
-```go
-func TestTerraformSchemaValidation(t *testing.T) {
-	findings, err := diffy.ValidateSchema(
-		diffy.WithGitHubIssueCreation(),
-		func(opts *diffy.SchemaValidatorOptions) {
-			opts.Silent = true
-		},
-	)
-	if err != nil {
-		t.Fatalf("Validation failed: %v", err)
-	}
-	for _, finding := range findings {
-		t.Logf("%s", diffy.FormatFinding(finding))
-	}
-	if len(findings) > 0 {
-		t.Errorf("Found %d missing properties/blocks in root or submodules. See logs above.", len(findings))
-	}
-}
-```
-
-```yaml
-- name: Run schema tests
-  working-directory: called/tests
-  run: |
-    go test -v -run TestTerraformSchemaValidation diffy_test.go
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    TERRAFORM_ROOT: "${{ github.workspace }}/caller"
-```
+See the [examples/usage](examples/usage/) directory for examples and test cases.
 
 ## Features
 
-Automatically validates terraform resources against their provider schemas.
+`Schema Validation`
 
-Recursively validates all submodules.
+Validates all Terraform resources and data sources against their provider schemas
 
-Optionally creates or updates gitHub issues with validation findings.
+Identifies missing required properties that would cause deployment failures
 
-Designed to work seamlessly in CI/CD workflows with environment variable support.
+Detects deprecated or invalid attribute configurations
 
-Respects terraform lifecycle blocks and ignore_changes settings.
+Supports recursive validation of nested modules and submodules
 
-Properly handles nested dynamic blocks in your terraform configurations.
+`GitHub Integration`
 
-Identifies both missing required and optional properties.
+Automatically creates GitHub issues for validation findings
 
-## Options
+Provides detailed, actionable feedback on configuration problems
 
-Diffy supports a functional options pattern for configuration:
+Enables team collaboration on infrastructure quality improvements
 
-`WithTerraformRoot(path):` Sets the root directory for Terraform files
+`Flexible Configuration`
 
-`WithGitHubIssueCreation():` Enables GitHub issue creation based on validation findings
+Supports resource and data source exclusions for custom validation rules
+
+Environment variable configuration for CI/CD integration
+
+Configurable logging levels and output formats
+
+Middleware pattern for custom validation extensions
+
+`Advanced Terraform Support`
+
+Respects Terraform lifecycle blocks and ignore_changes directives
+
+Handles complex dynamic blocks and nested configurations
+
+Works with all major Terraform providers and custom providers
+
+## Configuration
+
+`Environment Variables`
+
+Configure diffy through environment variables for CI/CD pipelines:
+
+`TERRAFORM_ROOT`: Path to your Terraform configuration root directory
+
+`EXCLUDED_RESOURCES`: Comma-separated list of resource types to exclude from validation
+
+`EXCLUDED_DATA_SOURCES`: Comma-separated list of data source types to exclude
+
+`GITHUB_TOKEN`: Personal access token for GitHub issue creation (optional)
+
+## Notes
+
+The `TERRAFORM_ROOT` environment variable takes highest priority when set
+
+A Terraform root path must be specified either via environment variable or configuration option
+
+GitHub integration requires appropriate repository permissions and a valid token
+
+Validation respects Terraform lifecycle ignore_changes directives, and diffy skips attributes that providers mark as computed-only so you can focus on values you must declare
 
 ## Contributors
 
@@ -95,13 +97,3 @@ We welcome contributions from the community! Whether it's reporting a bug, sugge
 <a href="https://github.com/dkooll/diffy/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=dkooll/diffy" />
 </a>
-
-## Notes
-
-The `TERRAFORM_ROOT` environment variable takes highest priority if set.
-
-A path must be specified either through the `TERRAFORM_ROOT` environment variable or via `WithTerraformRoot()` option.
-
-GitHub issue creation requires a `GITHUB_TOKEN` environment variable.
-
-This approach supports both local testing and CI/CD environments with the same code.
