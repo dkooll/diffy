@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	github.com/google/go-cmp v0.7.0
 	github.com/hashicorp/hcl/v2 v2.23.0
-	github.com/zclconf/go-cty v1.16.2
+	github.com/zclconf/go-cty v1.17.0
 )
 
 require (
